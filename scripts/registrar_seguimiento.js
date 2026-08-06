@@ -226,62 +226,38 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !EMAIL || !PASSWORD)
   const meetingId = meeting.id;
   const orgId     = meeting.org_id;
 
-  // 3. Subir archivos a Storage + adjuntar_archivo por cada uno
+  // 3. Subir cada archivo a Storage + adjuntar_archivo
+  const archivosSubidos = [];
   for (const a of archivos) {
-    const ts       = Date.now();
-    const safeName = sanitizeFileName(a.nombre);
-    const storagePath = `${orgId}/${meetingId}/${ts}-${safeName}`;
-    const mime     = guessMime(a.localPath);
-    const fileBuffer = fs.readFileSync(a.localPath);
+    let bytes;
+    try { bytes = fs.readFileSync(a.localPath); }
+    catch { fatal(`No se pudo leer el archivo local: ${a.localPath}`); }
 
-    // 3a. PUT a Storage
-    let uploadRes;
-    try {
-      uploadRes = await put(
-        `${SUPABASE_URL}/storage/v1/object/agentes-attachments/${storagePath}`,
-        { ...authHeaders, 'x-upsert': 'false' },
-        fileBuffer,
-        mime
-      );
-    } catch (e) {
-      fatal(`Error de red subiendo ${a.nombre}: ${e.message}`);
-    }
+    const storagePath = `${orgId}/${meetingId}/${Date.now()}-${sanitizeFileName(a.nombre)}`;
 
+    const uploadRes = await request(
+      'POST',
+      `${SUPABASE_URL}/storage/v1/object/agentes-attachments/${storagePath}`,
+      { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/octet-stream' },
+      bytes
+    );
     if (uploadRes.status !== 200 && uploadRes.status !== 201) {
-      const reason = uploadRes.body?.error || uploadRes.body?.message
-        || `HTTP ${uploadRes.status}`;
-      fatal(`Upload fallido para ${a.nombre}: ${reason}`);
+      fatal(`No se pudo subir ${a.localPath}: HTTP ${uploadRes.status}`);
     }
 
-    // 3b. RPC adjuntar_archivo
-    let adjRes;
-    try {
-      adjRes = await post(
-        `${SUPABASE_URL}/rest/v1/rpc/adjuntar_archivo`,
-        { ...authHeaders, 'Content-Profile': 'agentes', 'Accept-Profile': 'agentes' },
-        {
-          p_meeting_id:   meetingId,
-          p_tipo:         a.tipo,
-          p_storage_path: storagePath,
-          p_nombre:       a.nombre,
-        }
-      );
-    } catch (e) {
-      fatal(`Error de red en adjuntar_archivo (${a.nombre}): ${e.message}`);
+    const adjuntarRes = await post(
+      `${SUPABASE_URL}/rest/v1/rpc/adjuntar_archivo`,
+      rpcHeaders,
+      { p_meeting_id: meetingId, p_tipo: a.tipo, p_storage_path: storagePath, p_nombre: a.nombre }
+    );
+    if (adjuntarRes.status !== 200 && adjuntarRes.status !== 201) {
+      fatal(`adjuntar_archivo falló para ${a.nombre}: HTTP ${adjuntarRes.status}`);
     }
-
-    if (adjRes.status !== 200) {
-      const reason = adjRes.body?.message || adjRes.body?.hint
-        || `HTTP ${adjRes.status}`;
-      fatal(`adjuntar_archivo falló para ${a.nombre}: ${reason}`);
-    }
-
-    // Actualizar nuestra copia local del meeting con el estado más reciente
-    Object.assign(meeting, adjRes.body);
+    archivosSubidos.push({ tipo: a.tipo, storage_path: storagePath, nombre: a.nombre });
   }
 
-  // 4. Resultado final a stdout
-  process.stdout.write(JSON.stringify(meeting, null, 2) + '\n');
+  // 4. Resultado limpio a stdout
+  process.stdout.write(JSON.stringify({ meeting_id: meetingId, org_id: orgId, archivos: archivosSubidos }, null, 2) + '\n');
 
 })().catch((e) => {
   fatal(`Error inesperado: ${e.message}`);
