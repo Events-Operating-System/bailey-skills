@@ -207,9 +207,8 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !EMAIL || !PASSWORD)
     fatal(`registrar_seguimiento falló: ${reason}`);
   }
 
-  const meeting = rpcRes.body;
-  const meetingId = meeting.id;
-  const orgId     = meeting.org_id;
+  const meeting = Array.isArray(rpcRes.body) ? rpcRes.body[0] : rpcRes.body;
+  const { id: meetingId, org_id: orgId } = meeting;
 
   // 3. Subir cada archivo a Storage + adjuntar_archivo
   const archivosSubidos = [];
