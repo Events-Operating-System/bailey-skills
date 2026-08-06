@@ -136,4 +136,4 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !EMAIL || !PASSWORD)
   // 3. Resultado limpio a stdout
   process.stdout.write(JSON.stringify(rpcRes.body, null, 2) + '\n');
 
-})();
+})().catch(e => fatal(`Error inesperado: ${e.message}`));
