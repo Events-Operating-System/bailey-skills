@@ -74,11 +74,6 @@ function post(urlStr, headers, body) {
     { ...headers, 'Content-Type': 'application/json' }, body);
 }
 
-function put(urlStr, headers, fileBuffer, mimeType) {
-  return request('PUT', urlStr,
-    { ...headers, 'Content-Type': mimeType }, fileBuffer);
-}
-
 function sanitizeFileName(name) {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
@@ -88,18 +83,6 @@ function guessTipoFromExt(filePath) {
   if (['m4a', 'mp3', 'wav', 'ogg', 'opus'].includes(ext)) return 'audio';
   if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return 'foto';
   return 'archivo';
-}
-
-function guessMime(filePath) {
-  const ext = filePath.split('.').pop().toLowerCase();
-  const map = {
-    m4a: 'audio/mp4', mp3: 'audio/mpeg', wav: 'audio/wav',
-    ogg: 'audio/ogg', opus: 'audio/opus',
-    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
-    webp: 'image/webp', gif: 'image/gif',
-    pdf: 'application/pdf',
-  };
-  return map[ext] || 'application/octet-stream';
 }
 
 // ── Args ─────────────────────────────────────────────────────────────────────
@@ -186,9 +169,11 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !EMAIL || !PASSWORD)
 
   const token = authRes.body.access_token; // nunca se imprime
 
-  const authHeaders = {
-    apikey:        SUPABASE_ANON_KEY,
-    Authorization: `Bearer ${token}`,
+  const rpcHeaders = {
+    apikey:           SUPABASE_ANON_KEY,
+    Authorization:    `Bearer ${token}`,
+    'Content-Profile': 'agentes',
+    'Accept-Profile':  'agentes',
   };
 
   // 2. RPC registrar_seguimiento (sin archivos — aún no tenemos meeting_id)
@@ -209,7 +194,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !EMAIL || !PASSWORD)
   try {
     rpcRes = await post(
       `${SUPABASE_URL}/rest/v1/rpc/registrar_seguimiento`,
-      { ...authHeaders, 'Content-Profile': 'agentes', 'Accept-Profile': 'agentes' },
+      rpcHeaders,
       rpcPayload
     );
   } catch (e) {
