@@ -83,6 +83,13 @@ function sanitizeFileName(name) {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
+function guessTipoFromExt(filePath) {
+  const ext = filePath.split('.').pop().toLowerCase();
+  if (['m4a', 'mp3', 'wav', 'ogg', 'opus'].includes(ext)) return 'audio';
+  if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return 'foto';
+  return 'archivo';
+}
+
 function guessMime(filePath) {
   const ext = filePath.split('.').pop().toLowerCase();
   const map = {
@@ -113,16 +120,13 @@ for (let i = 0; i < args.length; i++) {
     case '--titulo':       titulo     = args[++i]; break;
     case '--meeting-type': meetingType = args[++i]; break;
     case '--archivo': {
-      const raw = args[++i]; // formato: tipo:ruta_local:nombre_display
-      const parts = raw.split(':');
-      if (parts.length < 3) fatal(`--archivo mal formateado: "${raw}" — esperado tipo:ruta:nombre`);
-      // ruta puede tener : (Windows raro, pero por si acaso reconstruir)
-      const archivoTipo = parts[0];
-      const nombre      = parts[parts.length - 1];
-      const localPath   = parts.slice(1, -1).join(':');
-      if (!['audio', 'foto', 'archivo'].includes(archivoTipo))
-        fatal(`tipo de archivo inválido: "${archivoTipo}" — usar audio|foto|archivo`);
-      archivos.push({ tipo: archivoTipo, localPath, nombre });
+      const [tipoRaw, localPath, nombreRaw] = args[++i].split(':');
+      if (!localPath) fatal('--archivo debe ser tipo:ruta_local:nombre (nombre opcional)');
+      archivos.push({
+        tipo:      ['audio', 'foto', 'archivo'].includes(tipoRaw) ? tipoRaw : guessTipoFromExt(localPath),
+        localPath,
+        nombre:    nombreRaw || localPath.split('/').pop(),
+      });
       break;
     }
   }
@@ -197,9 +201,9 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !EMAIL || !PASSWORD)
     p_meeting_type:     meetingType,
   };
 
-  if (tipo === 'evento')      rpcPayload.p_event_id       = entidadId;
-  if (tipo === 'oportunidad') rpcPayload.p_opportunity_id = entidadId;
-  if (titulo)                 rpcPayload.p_title          = titulo;
+  rpcPayload.p_event_id       = tipo === 'evento'      ? entidadId : null;
+  rpcPayload.p_opportunity_id = tipo === 'oportunidad' ? entidadId : null;
+  if (titulo) rpcPayload.p_title = titulo;
 
   let rpcRes;
   try {
