@@ -138,7 +138,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !AUTH_EMAIL || !PASSWORD)
 
   // 2. RPC crear_cliente_y_oportunidad
   const rpcPayload = {
-    p_nombre:           nombre.trim(),
+    p_cliente_nombre:   nombre.trim(),
     p_telefono:         telefono ? telefono.trim() : null,
     p_email:            email    ? email.trim()    : null,
     p_tipo_evento:      tipoEvento     || null,
@@ -164,7 +164,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !AUTH_EMAIL || !PASSWORD)
   }
 
   const result = Array.isArray(rpcRes.body) ? rpcRes.body[0] : rpcRes.body;
-  const { client_id, opportunity_id, cliente_reutilizado } = result;
+  const { client_id, opportunity_id, client_was_created, campos_pendientes } = result;
 
   if (!client_id || !opportunity_id)
     fatal('RPC no devolvió client_id u opportunity_id — no se puede confirmar la creación');
@@ -173,7 +173,8 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !AUTH_EMAIL || !PASSWORD)
   process.stdout.write(JSON.stringify({
     client_id,
     opportunity_id,
-    cliente_reutilizado: !!cliente_reutilizado,
+    cliente_reutilizado: !client_was_created,
+    campos_pendientes: campos_pendientes || [],
   }, null, 2) + '\n');
 
 })().catch((e) => {
