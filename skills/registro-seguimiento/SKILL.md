@@ -20,6 +20,11 @@ calendario sugiere uno — no lo infieras del título ni de los invitados. Es
 más lento pero evita que el seguimiento quede pegado a la entidad
 equivocada.
 
+**Redactá siempre un título corto (3-8 palabras) que resuma la reunión y
+pasalo con `--titulo`** — nunca invoques el script sin él. No hay un default
+razonable que el sistema pueda inventar solo; si no se lo das vos, la fila
+queda con `title = null`. Ejemplo: `--titulo "Visita local — Despedida Patrick Ortmann"`.
+
 ## Setup (una vez)
 
 Mismos secrets que `cronograma-eventos`:
@@ -41,11 +46,16 @@ node /Users/baileyserver/.openclaw/workspace/bailey-skills/scripts/registrar_seg
   --tipo evento \
   --entidad-id <uuid-del-evento-u-oportunidad> \
   --fecha "2026-08-05T18:00:00-05:00" \
+  --titulo "Visita al local — Despedida Patrick Ortmann" \
   --resumen "Resumen de la reunión..." \
   --pendientes '[{"task":"Enviar propuesta","owner":"Javier","due_date":"2026-08-10","status":"pendiente"}]' \
   --acuerdos '[{"text":"Presupuesto aprobado hasta $20k","owner":"Cliente","status":"confirmado"}]' \
   --archivo audio:/tmp/nota.m4a:nota_reunion.m4a
 ```
+
+`--titulo` es obligatorio en la práctica: el script lo acepta como opcional
+(`p_title` default `null` en la función), pero el skill debe generarlo siempre
+— ver la instrucción arriba.
 
 `--tipo` es `evento` si la reunión es sobre un evento operativo ya creado (`eventos.events`), u `oportunidad` si todavía es pre-venta (`ventas.opportunities`) — nunca ambos.
 `--archivo` puede repetirse por cada adjunto.
@@ -58,6 +68,24 @@ node /Users/baileyserver/.openclaw/workspace/bailey-skills/scripts/registrar_seg
   "org_id": "uuid",
   "archivos": [{ "tipo": "audio", "storage_path": "...", "nombre": "nota_reunion.m4a" }]
 }
+```
+
+## Confirmación al usuario
+
+Después de que el script devuelva `meeting_id`, reportá el resultado con:
+
+1. Nombre del evento/oportunidad, fecha, y el `meeting_id` (primeros 8 chars)
+2. Los acuerdos guardados (todos, no resumen)
+3. **La lista completa de pendientes — uno por línea, sin agrupar ni resumir.** Si el script recibió 5 pendientes, el mensaje de confirmación muestra 5 ítems. No combinar ítems relacionados en un solo bullet.
+4. Si hubo archivos adjuntos, listarlos
+
+Ejemplo correcto (5 pendientes guardados → 5 líneas):
+```
+- 📦 Armar local — sáb 8/8 (Equipo JBD)
+- 📋 Lista de insumos por pedir — vie 7/8 (Javier)
+- 🚽 Instalación baños — sáb 8/8 (Equipo JBD)
+- 🎪 Coordinar zona previos — sáb 8/8 (Equipo JBD)
+- 🎶 Coordinar zona after — sáb 8/8 (Equipo JBD)
 ```
 
 ## Errores
