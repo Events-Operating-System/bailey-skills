@@ -71,15 +71,15 @@ El RPC no puede detectar esto — crea un cliente nuevo de todas formas. Pero Ba
 
 Para detectar el Caso 3: si el nombre ingresado es muy similar a alguno que Javier haya mencionado antes en la conversación, mencionarlo proactivamente. No bloquear — solo avisar.
 
-## Aviso doble al terminar (OBLIGATORIO)
+## Aviso al terminar (OBLIGATORIO)
 
 Después de que el script devuelva `client_id` y `opportunity_id` reales:
 
 1. **Mensaje en el chat** con el resumen (ver formato abajo)
-2. **Email a Javier** via skill `gog` (Google Workspace):
-   - Para: `jbambaren@realitynear.org`
-   - Asunto: `Nueva oportunidad pendiente de revisar — [nombre cliente]`
-   - Cuerpo: nombre, contacto, tipo de evento, fecha tentativa, origen, opportunity_id, link al Dashboard si está disponible
+2. **Email a Javier** — el script lo manda automáticamente. No necesitas invocarlo.
+   - El script devuelve `email_enviado: true` si el email llegó.
+   - Si devuelve `email_enviado: false` con `email_error`, avisar a Javier en el chat que el email falló y mostrar el error.
+   - **No invocar gog manualmente** — el email ya es responsabilidad del script.
 
 ### Formato del mensaje de confirmación en chat
 
@@ -97,7 +97,8 @@ Después de que el script devuelva `client_id` y `opportunity_id` reales:
 [Si cliente_reutilizado=true]: ℹ️ El cliente ya existía — se vinculó la oportunidad nueva.
 [Si Caso 3 sospechado]: ⚠️ El nombre es similar a [nombre existente] — revisalo antes de confirmar.
 
-📬 Te envié un email de aviso.
+[Si email_enviado=true]: 📬 Te envié un email de aviso automáticamente.
+[Si email_enviado=false]: ⚠️ El email de aviso no se pudo enviar: [email_error]. Lo sabés por este chat.
 Confirmá la oportunidad en el Dashboard → Ventas → Pendientes de confirmar.
 ```
 

@@ -18,8 +18,9 @@
 
 'use strict';
 
-const fs    = require('fs');
-const https = require('https');
+const fs             = require('fs');
+const https          = require('https');
+const { execFileSync } = require('child_process');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -169,12 +170,55 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !AUTH_EMAIL || !PASSWORD)
   if (!client_id || !opportunity_id)
     fatal('RPC no devolvió client_id u opportunity_id — no se puede confirmar la creación');
 
-  // 3. Resultado limpio a stdout
+  // 3. Enviar email de notificación a Javier
+  let emailEnviado = false;
+  let emailError   = null;
+  try {
+    const clientCode = result.client_code || '';
+    const subject = `[EventOS] Nuevo cliente creado — ${clientCode} ${nombre.trim()}`;
+    const body =
+      `Hola Javier,\n\n` +
+      `Se creó un nuevo cliente en EventOS.\n\n` +
+      `Detalles:\n` +
+      `• Nombre: ${nombre.trim()}\n` +
+      (telefono       ? `• Teléfono: ${telefono.trim()}\n`       : '') +
+      (email          ? `• Email: ${email.trim()}\n`             : '') +
+      (tipoEvento     ? `• Tipo de evento: ${tipoEvento}\n`     : '') +
+      (fechaTentativa ? `• Fecha tentativa: ${fechaTentativa}\n` : '') +
+      (origen         ? `• Origen: ${origen}\n`                 : '') +
+      `\n` +
+      `IDs internos:\n` +
+      `• client_id: ${client_id}\n` +
+      `• opportunity_id: ${opportunity_id}\n` +
+      `\n— Bailey`;
+
+    execFileSync('gog', [
+      'gmail', 'send',
+      '--to',      'jbambaren@realitynear.org',
+      '--subject', subject,
+      '--body',    body,
+      '-a',        'baileyai@realitynear.org',
+    ], {
+      env: {
+        ...process.env,
+        GOG_KEYRING_BACKEND:  'file',
+        GOG_KEYRING_PASSWORD: process.env.GOG_KEYRING_PASSWORD || '',
+      },
+      timeout: 30000,
+    });
+    emailEnviado = true;
+  } catch (e) {
+    emailError = e.message || String(e);
+  }
+
+  // 4. Resultado limpio a stdout
   process.stdout.write(JSON.stringify({
     client_id,
     opportunity_id,
     cliente_reutilizado: !client_was_created,
-    campos_pendientes: campos_pendientes || [],
+    campos_pendientes:   campos_pendientes || [],
+    email_enviado:       emailEnviado,
+    ...(emailError ? { email_error: emailError } : {}),
   }, null, 2) + '\n');
 
 })().catch((e) => {
