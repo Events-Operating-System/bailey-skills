@@ -55,7 +55,11 @@ Los demás flags son opcionales — omitirlos si no se tienen.
 
 ## Lógica de dedup y casos especiales
 
-El RPC maneja el dedup automáticamente por teléfono/email exacto (incluyendo espacios de borde — ya corregido en el RPC):
+El RPC maneja el dedup por teléfono/email, con estas limitaciones conocidas:
+
+⚠️ **Limitación confirmada (pendiente de fix en RPC):** el dedup de email es case-sensitive — `Test@gmail.com` y `test@gmail.com` se tratan como emails distintos y crean dos clientes separados. El teléfono sí deduplica correctamente. Fix requerido: normalizar email a lowercase en el RPC antes de comparar. Escalar a Code.
+
+Comportamiento actual:
 
 **Caso 1 — Cliente nuevo:**
 El RPC crea el cliente y la oportunidad. `cliente_reutilizado = false`.
