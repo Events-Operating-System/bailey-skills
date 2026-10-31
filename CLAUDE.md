@@ -43,3 +43,12 @@ capacidad nueva, replicá esto:
 ## Fuera de alcance de este repo
 
 El SQL de las funciones RPC (`crear_cliente_y_oportunidad`, `registrar_seguimiento`, etc.) vive en migraciones de Supabase que no están versionadas acá. Para auditar validación server-side o lógica de dedup hay que pedir esas migraciones aparte — no asumir su contenido a partir de lo que dice un `SKILL.md`.
+
+## registro-reunion (2026-10-31)
+
+- `scripts/registrar_reunion.js` + `skills/registro-reunion/SKILL.md` reemplazan a `registro-seguimiento`. Acuerdos:
+  uno por compromiso, `owner_role` (cliente / productora / proveedor / null), fechas con año. La base
+  (`eventos.registrar_reunion` → `eventos.insert_meeting_agreements`) corrige fechas pendientes anteriores a la reunión,
+  descarta repetidos y deja sin asignar lo que no reconoce.
+- Instalación en el servidor de Bailey: pasos en `eventos-eventos-frontend/docs/AUDITORIA-REUNIONES.md`. Todavía no
+  instalado. No cambiar el rol de Bailey.
