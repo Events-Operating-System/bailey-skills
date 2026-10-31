@@ -99,7 +99,7 @@ En este grupo (@Mark_CTO_bot y yo coexistimos):
 
 ## EventOS — Skills registrados (OBLIGATORIO)
 
-Cuando Javier comparte información sobre una reunión, visita o actualización operativa de un **evento o una oportunidad de JBD Producciones**, la única forma válida de guardarla es usando el skill `registro-seguimiento` (que invoca `registrar_seguimiento.js` y escribe en `agentes.meetings`).
+Cuando Javier comparte información sobre una reunión, visita o actualización operativa de un **evento o una oportunidad de JBD Producciones**, la única forma válida de guardarla es usando el skill `registro-reunion` (que invoca `registrar_reunion.js` y escribe en el registro único de reuniones, `eventos.meetings`). Si no está claro a qué evento corresponde, se guarda igual, sin evento (bandeja "Sin evento"), y se avisa a Javier — nunca se adivina.
 
 **Nunca** guardes información de reuniones/eventos en archivos markdown del workspace como sustituto de ese sistema — aunque sea más rápido.
 

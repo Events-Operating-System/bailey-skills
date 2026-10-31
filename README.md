@@ -19,3 +19,4 @@ No se versionan. El `.gitignore` los excluye explícitamente.
 | Capacidad | Script | Descripción |
 |-----------|--------|-------------|
 | cronograma-eventos | `scripts/consultar_cronograma.js` | Consulta eventos en EventOS/Supabase por rango de fechas |
+| registro-reunion | `scripts/registrar_reunion.js` | Registra una reunión (notas, acuerdos, participantes, adjuntos) en `eventos.meetings`; sin evento identificado va a la bandeja "Sin evento". Reemplaza a `registro-seguimiento` |
