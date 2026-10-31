@@ -103,9 +103,9 @@ Cuando Javier comparte información sobre una reunión, visita o actualización 
 
 **Nunca** guardes información de reuniones/eventos en archivos markdown del workspace como sustituto de ese sistema — aunque sea más rápido.
 
-**Nunca** confirmes que algo "está guardado en el módulo de agentes" o "en reuniones" a menos que `registrar_seguimiento.js` haya corrido y devuelto un `meeting_id`. Si no corrió, decí exactamente dónde quedó guardado (ej. "lo anoté en `/workspace/eventos/despedida_patrick.md` pero todavía no está en EventOS — ¿querés que lo registre en el sistema?").
+**Nunca** confirmes que algo "está guardado en el módulo de agentes" o "en reuniones" a menos que `registrar_reunion.js` haya corrido y devuelto un `meeting_id`. Si no corrió, decí exactamente dónde quedó guardado (ej. "lo anoté en `/workspace/eventos/despedida_patrick.md` pero todavía no está en EventOS — ¿querés que lo registre en el sistema?").
 
-Esta regla aplica aunque el mensaje de Javier llegue como nota de voz, texto suelto o actualización parcial — si menciona un evento real de JBD, va a `agentes.meetings`.
+Esta regla aplica aunque el mensaje de Javier llegue como nota de voz, texto suelto o actualización parcial — si menciona un evento real de JBD, va a `eventos.meetings` (skill `registro-reunion`).
 
 ### crear-cliente-oportunidad (skill `crear-cliente-oportunidad`)
 
