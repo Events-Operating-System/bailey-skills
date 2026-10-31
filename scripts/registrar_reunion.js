@@ -8,14 +8,15 @@
 //     --fecha "2026-11-05T18:00:00-05:00" \
 //     --titulo "Visita al local — Matri Vane & Sandro" \
 //     [--notas "texto; líneas que empiezan con '- ' quedan como lista"] \
-//     [--acuerdos '[{"text":"...","owner":"Cliente","due_date":"2026-11-10","status":"pendiente"}]'] \
+//     [--acuerdos '[{"text":"...","owner":"Ana","owner_role":"cliente","due_date":"2026-11-10","status":"pendiente"}]'] \
 //     [--participantes '[{"name":"Vane","kind":"cliente"},{"name":"Edward","email":"..."}]'] \
 //     [--modalidad presencial|virtual|telefono] [--lugar "..."] \
 //     [--archivo audio:/ruta/local/nota.m4a:nota.m4a]     # se puede repetir
 //
 // Reglas (las valida la base, eventos.registrar_reunion): la org sale del evento u oportunidad; sin ninguno, de la
 // única membresía activa de Bailey. La reunión queda SIEMPRE interna (Bailey nunca comparte con el cliente).
-// Acuerdos: owner es texto libre ("Cliente", "Javier", "Equipo JBD"); la base decide cliente / miembro / productora.
+// Acuerdos: owner es el nombre de la persona; owner_role ("cliente" | "productora" | null) indica de qué lado está.
+// La base decide cliente / miembro / productora, descarta repetidos y corrige fechas pendientes anteriores a la reunión.
 //
 // SEGURIDAD: credenciales y JWT nunca se imprimen ni loguean. Solo el resultado final (JSON) va a stdout.
 // Errores van a stderr como JSON { "error": "..." } con exit code != 0.

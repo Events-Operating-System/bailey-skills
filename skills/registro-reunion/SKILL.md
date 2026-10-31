@@ -30,10 +30,19 @@ y ya redactaste las notas y los acuerdos.
 - `--titulo` **siempre** (3-8 palabras). Ej.: `--titulo "Visita al local — Matri Vane & Sandro"`.
 - `--fecha` de la reunión (no la de hoy si fue otro día).
 - `--notas`: el resumen, en texto. Una línea por párrafo; las líneas que empiezan con `- ` quedan como lista.
-- `--acuerdos`: **una sola lista** con acuerdos y pendientes (ya no hay "pendientes" aparte). Cada uno:
-  `{"text": "...", "owner": "Cliente | Javier | Equipo JBD | ...", "due_date": "AAAA-MM-DD", "status": "pendiente"}`.
-  Si algo ya quedó resuelto en la reunión, `"status": "hecho"`. El responsable va como texto: la base lo clasifica
-  (cliente, miembro del equipo o productora).
+- `--acuerdos`: **una sola lista**, **un acuerdo por compromiso** (no lo repitas visto desde el otro lado: si
+  "Javier envía el plano", no agregues "recibir el plano de Javier"). Cada uno:
+  `{"text": "...", "owner": "Ana", "owner_role": "cliente", "due_date": "AAAA-MM-DD", "status": "pendiente"}`.
+  - `owner`: el nombre de la persona, tal como lo dijo Javier. Si es la productora en general, el nombre de la
+    productora (ej. "JBD Producciones"). **Nunca "EventOS"** ni nombres inventados.
+  - `owner_role`: `"cliente"` (el cliente o alguien de su lado), `"productora"` (alguien del equipo o la productora)
+    o `null` si no está claro. **Si no está claro quién es responsable, `owner` y `owner_role` en `null`**: no adivines.
+  - `due_date`: **siempre con año**. Calculalo desde la fecha de la reunión (zona horaria de la organización, Lima para
+    JBD): "10 de noviembre" = el próximo 10 de noviembre; si ese día ya pasó este año, el del año siguiente. "El
+    viernes", "en dos semanas": desde la fecha de la reunión. Sin fecha → omitirlo.
+  - `"status": "hecho"` solo si ya quedó resuelto en la reunión.
+  La base revisa igual: descarta textos repetidos, pasa al año siguiente una fecha pendiente anterior a la reunión y
+  deja sin asignar lo que no puede reconocer.
 - `--participantes` (opcional): `[{"name": "...", "kind": "cliente|externo"}]`; con `email` de alguien del equipo
   queda como miembro.
 - `--modalidad presencial|virtual|telefono` y `--lugar` (opcionales).
@@ -58,7 +67,7 @@ node /Users/baileyserver/.openclaw/workspace/bailey-skills/scripts/registrar_reu
   --notas "Recorrimos el jardín y la terraza.
 - Ceremonia en el jardín
 - Cóctel en la terraza" \
-  --acuerdos '[{"text":"Enviar plano actualizado","owner":"Javier","due_date":"2026-11-08","status":"pendiente"},{"text":"Confirmar número de invitados","owner":"Cliente","status":"pendiente"}]' \
+  --acuerdos '[{"text":"Enviar plano actualizado","owner":"Javier","owner_role":"productora","due_date":"2026-11-08","status":"pendiente"},{"text":"Confirmar número de invitados","owner":"Vane","owner_role":"cliente","status":"pendiente"}]' \
   --archivo foto:/tmp/jardin.jpg:jardin.jpg
 ```
 
