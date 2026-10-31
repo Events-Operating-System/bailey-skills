@@ -35,8 +35,9 @@ y ya redactaste las notas y los acuerdos.
   `{"text": "...", "owner": "Ana", "owner_role": "cliente", "due_date": "AAAA-MM-DD", "status": "pendiente"}`.
   - `owner`: el nombre de la persona, tal como lo dijo Javier. Si es la productora en general, el nombre de la
     productora (ej. "JBD Producciones"). **Nunca "EventOS"** ni nombres inventados.
-  - `owner_role`: `"cliente"` (el cliente o alguien de su lado), `"productora"` (alguien del equipo o la productora)
-    o `null` si no está claro. **Si no está claro quién es responsable, `owner` y `owner_role` en `null`**: no adivines.
+  - `owner_role`: `"cliente"` (el cliente o alguien de su lado), `"productora"` (alguien del equipo o la productora),
+    `"proveedor"` (un proveedor externo: usá el nombre con el que está cargado en Inventarios; si no está cargado, la
+    base lo deja sin asignar y el equipo lo elige o lo crea desde la reunión) o `null` si no está claro. **Si no está claro quién es responsable, `owner` y `owner_role` en `null`**: no adivines.
   - `due_date`: **siempre con año**. Calculalo desde la fecha de la reunión (zona horaria de la organización, Lima para
     JBD): "10 de noviembre" = el próximo 10 de noviembre; si ese día ya pasó este año, el del año siguiente. "El
     viernes", "en dos semanas": desde la fecha de la reunión. Sin fecha → omitirlo.
