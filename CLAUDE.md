@@ -9,6 +9,9 @@ nunca confirmar sin datos reales, política de grupos) ver `AGENTS.md` — es
 para Bailey, no para vos. Este archivo es para vos (Claude Code) trabajando
 en el repo.
 
+> **Reglas comunes de EventOS:** `eventos-reglas/REGLAS.md` (se cargan solas desde `~/Developer/CLAUDE.md`). Acá solo
+> lo propio de este repo y su estado actual. Bitácora: `docs/SESSION_LOG.md`.
+
 ## Estructura
 
 ```
@@ -18,8 +21,10 @@ skills/     Un SKILL.md por capacidad — instrucciones para Bailey (cuándo inv
 
 ## Patrón canónico de los scripts
 
-Todos los scripts (`consultar_cronograma.js`, `registrar_seguimiento.js`,
-`crear_cliente_oportunidad.js`) siguen la misma forma. Si agregás una
+Todos los scripts vigentes (`consultar_cronograma.js`, `registrar_reunion.js`,
+`crear_cliente_oportunidad.js`) siguen la misma forma. `registrar_seguimiento.js` y
+`skills/registro-seguimiento` son la versión anterior: reemplazados por `registro-reunion`, quedan en el repo
+sin usar. Si agregás una
 capacidad nueva, replicá esto:
 
 - `loadEnv(filePath)` carga secrets desde `.secrets/*.env` a `process.env` — nunca hardcodear valores.
@@ -42,9 +47,9 @@ capacidad nueva, replicá esto:
 
 ## Fuera de alcance de este repo
 
-El SQL de las funciones RPC (`crear_cliente_y_oportunidad`, `registrar_seguimiento`, etc.) vive en migraciones de Supabase que no están versionadas acá. Para auditar validación server-side o lógica de dedup hay que pedir esas migraciones aparte — no asumir su contenido a partir de lo que dice un `SKILL.md`.
+El SQL de las funciones RPC (`crear_cliente_y_oportunidad`, `eventos.registrar_reunion`, etc.) vive en migraciones de Supabase de otros repos (`eventos-eventos-frontend` para reuniones), no acá. Para auditar validación server-side o lógica de dedup hay que pedir esas migraciones aparte — no asumir su contenido a partir de lo que dice un `SKILL.md`.
 
-## registro-reunion (2026-10-31)
+## Estado actual (2026-10-31)
 
 - `scripts/registrar_reunion.js` + `skills/registro-reunion/SKILL.md` reemplazan a `registro-seguimiento`. Acuerdos:
   uno por compromiso, `owner_role` (cliente / productora / proveedor / null), fechas con año. La base
